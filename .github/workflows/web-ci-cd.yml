@@ -1,45 +1,34 @@
-name: 'Enterprise Web Application Pipeline'
-
-# ==============================================================================
-# Enterprise GitHub Actions Workflow - gunjan-portfolio
-# Author: Gunjan Kumar Gaurav (Senior Cloud & DevSecOps Consultant)
-# ==============================================================================
+name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 jobs:
-  quality-gate:
-    name: '1. Quality & Security Checks'
+  build:
+    name: Build & Test
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      - name: Validate Web Assets
+      - name: Build assets
         run: |
           if [ -f package.json ]; then
             npm ci || npm install
             npm test --if-present
-          else
-            echo "Static asset bundle structurally verified."
           fi
 
-      - name: Run TruffleHog Secrets Scanner
+      - name: TruffleHog Secrets Scan
         uses: trufflesecurity/trufflehog@main
         with:
           path: ./
